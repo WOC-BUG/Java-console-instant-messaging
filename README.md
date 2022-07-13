@@ -1,2 +1,6 @@
 # Java-console-instant-messaging
-Java控制台即时通讯系统
+**`Java`控制台即时通讯系统**
+
+客户端代码：`ChatClient`
+
+服务器代码：`ChatServer`
