@@ -32,5 +32,9 @@ public class ManageServerConnectClientThread {
 
         return list.toString();
     }
+
+    public static HashMap<String, ServerConnectClientThread> getMp() {
+        return mp;
+    }
 }
 

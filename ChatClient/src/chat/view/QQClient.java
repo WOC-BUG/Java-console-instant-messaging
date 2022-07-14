@@ -1,5 +1,7 @@
 package chat.view;
 
+import chat.service.FileService;
+import chat.service.MessageService;
 import chat.service.UserClientService;
 import chat.utils.Utility;
 
@@ -8,6 +10,8 @@ public class QQClient {
     private String key = "";
 
     private UserClientService userClientService = new UserClientService();
+    private MessageService messageService = new MessageService();
+    private FileService fileService = new FileService();
 
     public static void main(String[] args) {
         QQClient qqClient = new QQClient();
@@ -54,12 +58,27 @@ public class QQClient {
                                     break;
                                 case "2":
                                     System.out.println("------------群发消息------------");
+                                    System.out.println("请输入你想要说的内容：");
+                                    String str = Utility.readString(500);
+                                    messageService.sendMessageToOthers(str, userID);
                                     break;
                                 case "3":
                                     System.out.println("------------私聊消息------------");
+                                    System.out.println("请输入你想要聊天的用户ID：");
+                                    String receiverID = Utility.readString(50);
+                                    System.out.println("请输入你想要说的内容：");
+                                    String content = Utility.readString(500);
+                                    messageService.sendMessageToOther(content, userID, receiverID);
                                     break;
                                 case "4":
                                     System.out.println("------------发送文件------------");
+                                    System.out.println("请输入想要发送文件的用户：");
+                                    String id = Utility.readString(50);
+                                    System.out.println("请输入要发送的文件路径：");
+                                    String path = Utility.readString(100);
+                                    System.out.println("请输入要发送到对方的文件路径：");
+                                    String path2 = Utility.readString(100);
+                                    fileService.sendFileToOther(path, path2, userID, id);
                                     break;
                                 case "9":
                                     System.out.println("------------退出系统------------");

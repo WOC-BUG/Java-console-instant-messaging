@@ -10,6 +10,12 @@ public class Message implements Serializable {
     private String messageType;
     private String sendTime;
 
+    // 文件传输相关
+    private byte[] fileBytes;
+    private int fileLen;
+    private String fileSrc;
+    private String fileDes;
+
     public Message() {
     }
 
@@ -59,5 +65,37 @@ public class Message implements Serializable {
 
     public void setSendTime(String sendTime) {
         this.sendTime = sendTime;
+    }
+
+    public byte[] getFileBytes() {
+        return fileBytes;
+    }
+
+    public void setFileBytes(byte[] fileBytes) {
+        this.fileBytes = fileBytes;
+    }
+
+    public int getFileLen() {
+        return fileLen;
+    }
+
+    public void setFileLen(int fileLen) {
+        this.fileLen = fileLen;
+    }
+
+    public String getFileSrc() {
+        return fileSrc;
+    }
+
+    public void setFileSrc(String fileSrc) {
+        this.fileSrc = fileSrc;
+    }
+
+    public String getFileDes() {
+        return fileDes;
+    }
+
+    public void setFileDes(String fileDes) {
+        this.fileDes = fileDes;
     }
 }
