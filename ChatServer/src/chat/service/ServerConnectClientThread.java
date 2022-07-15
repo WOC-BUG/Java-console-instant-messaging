@@ -1,14 +1,18 @@
 package chat.service;
 
+import java.io.IOException;
 import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
 import java.net.InetAddress;
 import java.net.Socket;
+import java.net.UnknownHostException;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.concurrent.ConcurrentHashMap;
 
 import chat.common.Message;
 import chat.common.MessageType;
+import chat.utils.DateUtils;
 
 public class ServerConnectClientThread extends Thread {
     private Socket socket;
@@ -45,8 +49,12 @@ public class ServerConnectClientThread extends Thread {
                 else if (msg.getMessageType().equals(MessageType.MESSAGE_COMMON_MESSAGE)) {
                     System.out.println(msg.getSender() + "转发消息给" + msg.getReceiver());
                     ServerConnectClientThread thread = ManageServerConnectClientThread.getThread(msg.getReceiver());
-                    ObjectOutputStream oos = new ObjectOutputStream(thread.getSocket().getOutputStream());
-                    oos.writeObject(msg);   // 转发信息
+                    if (thread == null) {
+                        returnMessageToSender(msg);
+                    } else {
+                        ObjectOutputStream oos = new ObjectOutputStream(thread.getSocket().getOutputStream());
+                        oos.writeObject(msg);   // 转发信息
+                    }
 
                 }
                 // 群发消息
@@ -65,8 +73,13 @@ public class ServerConnectClientThread extends Thread {
                 } else if (msg.getMessageType().equals(MessageType.MESSAGE_FILE)) {
                     System.out.println("<" + msg.getSender() + "> 转发文件给 <" + msg.getReceiver() + ">");
                     ServerConnectClientThread thread = ManageServerConnectClientThread.getThread(msg.getReceiver());
-                    ObjectOutputStream oos = new ObjectOutputStream(thread.getSocket().getOutputStream());
-                    oos.writeObject(msg);
+
+                    if (thread == null) {   // 如果对方不在线就存入留言
+                        returnMessageToSender(msg);
+                    } else {
+                        ObjectOutputStream oos = new ObjectOutputStream(thread.getSocket().getOutputStream());
+                        oos.writeObject(msg);
+                    }
                 }
                 // 退出系统
                 else if (msg.getMessageType().equals(MessageType.MESSAGE_CLIENT_EXIT)) {
@@ -81,6 +94,23 @@ public class ServerConnectClientThread extends Thread {
                 e.printStackTrace();
             }
         }
+    }
+
+    public void returnMessageToSender(Message msg) throws IOException {
+        // 保存留言
+        ManageServerConnectClientThread.addConcurrentMap(msg.getReceiver(), msg);
+
+        // 回复发送方
+        Message ans = new Message();
+        ans.setContent("当前用户不在线，留言将在对方登录后发送！");
+        ans.setReceiver(msg.getSender());
+        ans.setSender("系统");
+        ans.setSendTime(DateUtils.getDateTime());
+        ans.setMessageType(MessageType.MESSAGE_COMMON_MESSAGE);
+
+        ObjectOutputStream oos = new ObjectOutputStream(this.socket.getOutputStream());
+        oos.writeObject(ans);
+        System.out.println("<" + msg.getSender() + "> 发送给 <" + msg.getReceiver() + ">的消息已转入留言......");
     }
 
     public Socket getSocket() {

@@ -31,7 +31,7 @@ public class UserClientService {
 
         // 连接服务端，发送用户对象
         try {
-            socket = new Socket(InetAddress.getByName("192.168.137.1"), 9999);
+            socket = new Socket(InetAddress.getByName("192.168.0.116"), 9999);
 
             // 发送对象
             ObjectOutputStream oos = new ObjectOutputStream(socket.getOutputStream());

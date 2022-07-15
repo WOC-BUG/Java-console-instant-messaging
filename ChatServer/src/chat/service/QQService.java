@@ -5,6 +5,7 @@ import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
 import java.net.ServerSocket;
 import java.net.Socket;
+import java.util.Vector;
 import java.util.concurrent.ConcurrentHashMap;
 
 import chat.common.Message;
@@ -38,9 +39,22 @@ public class QQService {
                     System.out.println("用户<" + user.getUserId() + ">登录成功！");
                     msg.setMessageType(MessageType.MESSAGE_LOGIN_SUCCESS);
                     oos.writeObject(msg);
+
+                    // 加入线程
                     ServerConnectClientThread serverConnectClientThread = new ServerConnectClientThread(socket, user.getUserId());
                     serverConnectClientThread.start();
                     ManageServerConnectClientThread.addMap(user.getUserId(), serverConnectClientThread);
+
+                    // 发送缓存的留言
+                    Vector<Message> messages = ManageServerConnectClientThread.getMessages(user.getUserId());
+                    if (messages != null) {
+                        for (Message message : messages) {
+                            ObjectOutputStream oos2 = new ObjectOutputStream(socket.getOutputStream());
+                            oos2.writeObject(message);
+                        }
+                        ManageServerConnectClientThread.clearMessages(user.getUserId());
+                        System.out.println("用户<" + user.getUserId() + ">的留言已发送！");
+                    }
                 } else {
                     System.out.println("用户<" + user.getUserId() + ">登录失败！");
                     msg.setMessageType(MessageType.MESSAGE_LOGIN_FAIL);
